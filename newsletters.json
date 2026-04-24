@@ -1,0 +1,56 @@
+{
+  "f337aad3": {
+    "id": "f337aad3",
+    "data": {
+      "title": "Test Newsletter",
+      "blocks": [],
+      "template": "weekly"
+    },
+    "created_at": 1774888615423
+  },
+  "634b3af7": {
+    "id": "634b3af7",
+    "data": {
+      "template": "sunday",
+      "templateData": {
+        "bg": "#6b5e4e",
+        "text": "#fff"
+      },
+      "title": "",
+      "subtitle": "",
+      "author": "",
+      "date": "March 30, 2026",
+      "blocks": [
+        {
+          "id": "b1",
+          "type": "text",
+          "content": "Hello! Welcome to your newsletter. Replace this with your own words — share a story, a recommendation, a life update. Your readers will love hearing from you."
+        },
+        {
+          "id": "b2",
+          "type": "divider"
+        },
+        {
+          "id": "b3",
+          "type": "subheading",
+          "content": ""
+        },
+        {
+          "id": "b4",
+          "type": "image"
+        },
+        {
+          "id": "b5",
+          "type": "button",
+          "label": "Click here",
+          "url": ""
+        },
+        {
+          "id": "b6",
+          "type": "divider"
+        }
+      ]
+    },
+    "created_at": 1774894635657
+  }
+}

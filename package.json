@@ -1,0 +1,10 @@
+{
+  "name": "newsletter-studio",
+  "version": "1.0.0",
+  "description": "A warm, personal newsletter builder with shareable links",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}

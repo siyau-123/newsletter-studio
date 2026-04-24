@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Newsletter Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #faf7f2;
+      --parchment: #f0ebe0;
+      --warm-border: #e0d8cc;
+      --text-dark: #2c2418;
+      --text-mid: #6b5e4e;
+      --text-light: #9c8e7e;
+      --accent: #c0623a;
+      --accent-light: #f5ede8;
+      --accent-hover: #a84f2e;
+      --green: #4a7c59;
+      --green-light: #e8f2ec;
+      --sidebar-w: 280px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--parchment);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: var(--cream);
+      border-bottom: 1px solid var(--warm-border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar-logo {
+      font-family: 'Lora', serif;
+      font-size: 20px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .topbar-logo span { color: var(--text-dark); }
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+    /* ── Buttons ── */
+    .btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--warm-border); color: var(--text-mid); }
+    .btn-outline:hover { background: var(--parchment); border-color: var(--text-light); }
+    .btn-ghost { background: transparent; color: var(--text-mid); padding: 6px 12px; }
+    .btn-ghost:hover { background: var(--parchment); }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: #3a6347; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Layout ── */
+    .workspace {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 56px);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--cream);
+      border-right: 1px solid var(--warm-border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .sidebar-section { padding: 20px 16px 12px; }
+    .sidebar-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-light);
+      margin-bottom: 10px;
+    }
+
+    /* Add-block buttons */
+    .block-buttons { display: flex; flex-direction: column; gap: 6px; }
+    .block-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      background: transparent;
+      border: 1px solid var(--warm-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-mid);
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+      text-align: left;
+    }
+    .block-btn:hover { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+    .block-btn-icon { font-size: 16px; width: 22px; text-align: center; }
+
+    /* Template swatches */
+    .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .template-swatch {
+      border: 2px solid var(--warm-border);
+      border-radius: 8px;
+      padding: 10px 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: white;
+      text-align: center;
+    }
+    .template-swatch:hover { border-color: var(--accent); }
+    .template-swatch.active { border-color: var(--accent); background: var(--accent-light); }
+    .template-swatch-preview {
+      width: 100%;
+      aspect-ratio: 3/4;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 6px;
+    }
+    .tsp-line { border-radius: 2px; }
+    .template-swatch-name { font-size: 11px; color: var(--text-mid); font-weight: 500; }
+
+    hr.sidebar-divider { border: none; border-top: 1px solid var(--warm-border); margin: 4px 0; }
+
+    /* ── Canvas ── */
+    .canvas-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px 24px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .canvas {
+      width: 100%;
+      max-width: 620px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    /* ── Newsletter Header Band ── */
+    .nl-header {
+      padding: 36px 40px 28px;
+      position: relative;
+    }
+    .nl-header-title {
+      font-family: 'Lora', serif;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.25;
+      outline: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      color: inherit;
+    }
+    .nl-header-subtitle {
+      font-size: 15px;
+      margin-top: 8px;
+      outline: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      color: inherit;
+      opacity: 0.75;
+    }
+    [contenteditable]:empty:before {
+      content: attr(data-placeholder);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .nl-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.25);
+      font-size: 13px;
+      opacity: 0.8;
+    }
+    .nl-author { display: flex; align-items: center; gap: 7px; }
+    .nl-avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      border: none;
+    }
+    .nl-author-name { outline: none; border: none; background: transparent; font-size: 13px; color: inherit; }
+    .nl-date { margin-left: auto; font-size: 12px; opacity: 0.8; }
+
+    /* ── Blocks ── */
+    .blocks-area { padding: 32px 40px 40px; display: flex; flex-direction: column; gap: 4px; min-height: 200px; }
+    .blocks-area.drag-over { background: var(--accent-light); border-radius: 8px; }
+
+    .block-wrapper {
+      position: relative;
+      group: true;
+    }
+    .block-wrapper:hover .block-controls { opacity: 1; }
+    .block-controls {
+      position: absolute;
+      right: -44px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .block-ctrl-btn {
+      width: 30px; height: 30px;
+      background: white;
+      border: 1px solid var(--warm-border);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      color: var(--text-mid);
+      transition: all 0.1s;
+    }
+    .block-ctrl-btn:hover { background: var(--parchment); color: var(--text-dark); }
+    .block-ctrl-btn.danger:hover { background: #fee; color: #c00; border-color: #fcc; }
+
+    /* Drag handle */
+    .drag-handle {
+      position: absolute;
+      left: -32px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: grab;
+      color: var(--text-light);
+      opacity: 0;
+      transition: opacity 0.15s;
+      font-size: 15px;
+      user-select: none;
+      border-radius: 4px;
+    }
+    .drag-handle:hover { color: var(--text-mid); background: var(--parchment); }
+    .drag-handle:active { cursor: grabbing; }
+    .block-wrapper:hover .drag-handle { opacity: 1; }
+    .block-wrapper.dragging { opacity: 0.35; pointer-events: none; }
+
+    /* Drop indicator line */
+    .drop-indicator {
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin: 1px 0;
+      pointer-events: none;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .drop-indicator::before {
+      content: '';
+      position: absolute;
+      left: -4px; top: -3px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    /* Block types */
+    .block-heading {
+      font-family: 'Lora', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-dark);
+      outline: none;
+      border: none;
+      width: 100%;
+      background: transparent;
+      padding: 6px 0;
+      line-height: 1.3;
+    }
+    .block-subheading {
+      font-family: 'Lora', serif;
+      font-size: 17px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--text-mid);
+      outline: none;
+      border: none;
+      width: 100%;
+      background: transparent;
+      padding: 4px 0;
+    }
+    .block-text {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text-dark);
+      outline: none;
+      border: none;
+      width: 100%;
+      background: transparent;
+      padding: 4px 0;
+      font-family: 'Inter', sans-serif;
+      resize: none;
+      min-height: 60px;
+    }
+    .block-divider { margin: 12px 0; }
+    .block-divider hr {
+      border: none;
+      height: 1px;
+      background: var(--warm-border);
+    }
+    .block-divider.ornament {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 18px;
+      letter-spacing: 8px;
+    }
+    .block-image-wrap {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--parchment);
+      position: relative;
+    }
+    .block-image-wrap img { width: 100%; display: block; }
+    .block-image-caption {
+      font-size: 12px;
+      color: var(--text-light);
+      text-align: center;
+      padding: 6px 0 2px;
+      outline: none;
+      border: none;
+      background: transparent;
+      width: 100%;
+      font-style: italic;
+    }
+    .block-image-placeholder {
+      width: 100%;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 2px dashed var(--warm-border);
+      border-radius: 8px;
+      color: var(--text-light);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      padding: 24px;
+    }
+    .block-image-placeholder:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .block-image-url-input {
+      margin-top: 10px;
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--warm-border);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-dark);
+      background: white;
+    }
+    .block-image-url-input:focus { outline: none; border-color: var(--accent); }
+
+    .block-button-wrap { padding: 8px 0; }
+    .block-button-inner {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .block-button-text {
+      display: inline-block;
+      padding: 11px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      border: none;
+      background: transparent;
+      cursor: text;
+      min-width: 80px;
+      color: inherit;
+    }
+    .block-button-url {
+      font-size: 12px;
+      color: var(--text-light);
+      padding: 4px 8px;
+      border: 1px dashed var(--warm-border);
+      border-radius: 4px;
+      outline: none;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      width: 200px;
+    }
+    .block-button-url:focus { border-color: var(--accent); }
+
+    .block-spacer { height: 20px; }
+
+    /* Empty state */
+    .blocks-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 40px 0;
+      color: var(--text-light);
+      font-size: 14px;
+      text-align: center;
+    }
+    .blocks-empty-icon { font-size: 32px; }
+
+    /* ── Share modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(2px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 440px;
+      width: 90%;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    }
+    .modal-title {
+      font-family: 'Lora', serif;
+      font-size: 22px;
+      margin-bottom: 6px;
+      color: var(--text-dark);
+    }
+    .modal-sub { font-size: 14px; color: var(--text-mid); margin-bottom: 20px; }
+    .link-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--parchment);
+      border: 1px solid var(--warm-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+    }
+    .link-box-url {
+      flex: 1;
+      font-size: 14px;
+      color: var(--text-dark);
+      word-break: break-all;
+      font-family: 'Inter', sans-serif;
+    }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--text-dark);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 300;
+      transition: transform 0.25s ease;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Loading */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .canvas-wrap { padding: 16px; }
+      .nl-header { padding: 24px 24px 20px; }
+      .blocks-area { padding: 20px 24px 28px; }
+      .block-controls { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<header class="topbar">
+  <div class="topbar-logo">🌿 Newsletter<span>Studio</span></div>
+  <div class="topbar-actions">
+    <button class="btn btn-outline" id="previewBtn" onclick="openPreview()">Preview</button>
+    <button class="btn btn-primary" id="publishBtn" onclick="publishNewsletter()">Share →</button>
+  </div>
+</header>
+
+<div class="workspace">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Template</div>
+      <div class="template-grid" id="templateGrid"></div>
+    </div>
+
+    <hr class="sidebar-divider" />
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Add Block</div>
+      <div class="block-buttons">
+        <button class="block-btn" onclick="addBlock('heading')">
+          <span class="block-btn-icon">H</span> Heading
+        </button>
+        <button class="block-btn" onclick="addBlock('subheading')">
+          <span class="block-btn-icon" style="font-style:italic">h</span> Subheading
+        </button>
+        <button class="block-btn" onclick="addBlock('text')">
+          <span class="block-btn-icon">¶</span> Paragraph
+        </button>
+        <button class="block-btn" onclick="addBlock('image')">
+          <span class="block-btn-icon">🖼</span> Image
+        </button>
+        <button class="block-btn" onclick="addBlock('button')">
+          <span class="block-btn-icon">→</span> Button / Link
+        </button>
+        <button class="block-btn" onclick="addBlock('divider')">
+          <span class="block-btn-icon">—</span> Divider
+        </button>
+        <button class="block-btn" onclick="addBlock('spacer')">
+          <span class="block-btn-icon">↕</span> Spacer
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Canvas -->
+  <main class="canvas-wrap">
+    <div class="canvas" id="canvas">
+
+      <!-- Newsletter Header -->
+      <div class="nl-header" id="nlHeader">
+        <div
+          class="nl-header-title"
+          contenteditable="true"
+          data-placeholder="Your newsletter title…"
+          id="nlTitle"
+        ></div>
+        <div
+          class="nl-header-subtitle"
+          contenteditable="true"
+          data-placeholder="A short tagline or issue description"
+          id="nlSubtitle"
+        ></div>
+        <div class="nl-meta">
+          <div class="nl-author">
+            <div class="nl-avatar" id="nlAvatar">?</div>
+            <div
+              contenteditable="true"
+              class="nl-author-name"
+              data-placeholder="Your name"
+              id="nlAuthor"
+            ></div>
+          </div>
+          <div class="nl-date" id="nlDate"></div>
+        </div>
+      </div>
+
+      <!-- Blocks -->
+      <div class="blocks-area" id="blocksArea">
+        <div class="blocks-empty" id="blocksEmpty">
+          <div class="blocks-empty-icon">✍️</div>
+          <div>Add a block from the sidebar to get started</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal-overlay" id="previewModal" style="align-items:flex-start;overflow-y:auto;padding:40px 16px 80px;">
+  <div style="width:100%;max-width:640px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="font-size:13px;color:#9c8e7e;font-family:'Inter',sans-serif;">Preview — how readers will see your newsletter</div>
+      <button class="btn btn-outline" onclick="closePreview()" style="background:white;">✕ Close</button>
+    </div>
+    <div id="previewCard" style="background:white;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.10);overflow:hidden;"></div>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <div class="modal-title">Your newsletter is live! 🎉</div>
+    <div class="modal-sub">Share this link with your friends — they'll see a beautiful reading view.</div>
+    <div class="link-box">
+      <div class="link-box-url" id="shareLinkText"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Close</button>
+      <button class="btn btn-success" onclick="copyLink()">Copy Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+const state = {
+  template: 'weekly',
+  blocks: [],
+  publishedId: null
+};
+
+let blockIdCounter = 0;
+function newId() { return 'b' + (++blockIdCounter); }
+
+// ─── Templates ────────────────────────────────────────────────────────────────
+const TEMPLATES = [
+  {
+    id: 'weekly',
+    name: 'Weekly Letter',
+    bg: '#c8745a', text: '#fff',
+    preview: [
+      { h: '18px', w: '70%', bg: 'rgba(255,255,255,0.9)' },
+      { h: '8px',  w: '50%', bg: 'rgba(255,255,255,0.5)', mt: '6px' },
+      { h: '6px',  w: '90%', bg: 'rgba(255,255,255,0.3)', mt: '10px' },
+      { h: '6px',  w: '85%', bg: 'rgba(255,255,255,0.3)', mt: '3px' },
+    ]
+  },
+  {
+    id: 'garden',
+    name: 'Garden Notes',
+    bg: '#4a7c59', text: '#fff',
+    preview: [
+      { h: '18px', w: '60%', bg: 'rgba(255,255,255,0.9)' },
+      { h: '8px',  w: '40%', bg: 'rgba(255,255,255,0.5)', mt: '6px' },
+      { h: '60px', w: '100%', bg: 'rgba(255,255,255,0.2)', mt: '10px', radius: '4px' },
+    ]
+  },
+  {
+    id: 'sunday',
+    name: 'Sunday Read',
+    bg: '#6b5e4e', text: '#fff',
+    preview: [
+      { h: '6px',  w: '30%', bg: 'rgba(255,255,255,0.5)' },
+      { h: '20px', w: '80%', bg: 'rgba(255,255,255,0.9)', mt: '6px' },
+      { h: '6px',  w: '90%', bg: 'rgba(255,255,255,0.3)', mt: '10px' },
+      { h: '6px',  w: '75%', bg: 'rgba(255,255,255,0.3)', mt: '3px' },
+    ]
+  },
+  {
+    id: 'bright',
+    name: 'Bright & Open',
+    bg: '#e8b86d', text: '#3a2a10',
+    preview: [
+      { h: '18px', w: '65%', bg: 'rgba(0,0,0,0.7)' },
+      { h: '8px',  w: '45%', bg: 'rgba(0,0,0,0.4)', mt: '6px' },
+      { h: '6px',  w: '90%', bg: 'rgba(0,0,0,0.2)', mt: '10px' },
+      { h: '6px',  w: '70%', bg: 'rgba(0,0,0,0.2)', mt: '3px' },
+    ]
+  }
+];
+
+function renderTemplateGrid() {
+  const grid = document.getElementById('templateGrid');
+  grid.innerHTML = '';
+  TEMPLATES.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'template-swatch' + (state.template === t.id ? ' active' : '');
+    div.onclick = () => applyTemplate(t.id);
+
+    const preview = document.createElement('div');
+    preview.className = 'template-swatch-preview';
+    preview.style.background = t.bg;
+    t.preview.forEach(l => {
+      const line = document.createElement('div');
+      line.className = 'tsp-line';
+      line.style.cssText = `height:${l.h};width:${l.w};background:${l.bg};margin-top:${l.mt||'0'};border-radius:${l.radius||'2px'}`;
+      preview.appendChild(line);
+    });
+
+    const name = document.createElement('div');
+    name.className = 'template-swatch-name';
+    name.textContent = t.name;
+
+    div.appendChild(preview);
+    div.appendChild(name);
+    grid.appendChild(div);
+  });
+}
+
+function applyTemplate(id) {
+  state.template = id;
+  const t = TEMPLATES.find(x => x.id === id);
+  const header = document.getElementById('nlHeader');
+  header.style.background = t.bg;
+  header.style.color = t.text;
+  // divider line color
+  header.querySelector('.nl-meta').style.borderTopColor = t.text === '#fff'
+    ? 'rgba(255,255,255,0.25)'
+    : 'rgba(0,0,0,0.15)';
+  renderTemplateGrid();
+}
+
+// ─── Blocks ───────────────────────────────────────────────────────────────────
+function addBlock(type, data = {}) {
+  const id = newId();
+  const block = { id, type, ...data };
+  state.blocks.push(block);
+  renderBlock(block);
+  updateEmpty();
+}
+
+function renderBlock(block, insertBefore = null) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'block-wrapper';
+  wrapper.dataset.id = block.id;
+
+  let inner = '';
+
+  if (block.type === 'heading') {
+    inner = `<div class="block-heading" contenteditable="true"
+      data-placeholder="Heading…">${block.content || ''}</div>`;
+  } else if (block.type === 'subheading') {
+    inner = `<div class="block-subheading" contenteditable="true"
+      data-placeholder="Subheading…">${block.content || ''}</div>`;
+  } else if (block.type === 'text') {
+    inner = `<textarea class="block-text" rows="4"
+      placeholder="Write something…">${block.content || ''}</textarea>`;
+  } else if (block.type === 'image') {
+    if (block.url) {
+      inner = `<div class="block-image-wrap">
+        <img src="${escHtml(block.url)}" alt="" onerror="this.style.display='none'" />
+        <div class="block-image-caption" contenteditable="true"
+          data-placeholder="Add a caption…">${block.caption || ''}</div>
+      </div>`;
+    } else {
+      inner = `<div class="block-image-placeholder" onclick="promptImageUrl('${block.id}')">
+        <span style="font-size:28px">🖼</span>
+        <span>Click to add an image URL</span>
+        <input class="block-image-url-input" type="url"
+          placeholder="https://example.com/photo.jpg"
+          onclick="event.stopPropagation()"
+          onkeydown="if(event.key==='Enter'){setImageUrl('${block.id}',this.value)}"
+          onblur="if(this.value)setImageUrl('${block.id}',this.value)" />
+      </div>`;
+    }
+  } else if (block.type === 'button') {
+    const t = TEMPLATES.find(x => x.id === state.template);
+    const btnBg = t ? t.bg : '#c0623a';
+    const btnColor = t ? t.text : '#fff';
+    inner = `<div class="block-button-wrap">
+      <div class="block-button-inner">
+        <div class="block-button-text" contenteditable="true"
+          style="background:${btnBg};color:${btnColor};border-radius:8px"
+          data-placeholder="Button label">${block.label || 'Click here'}</div>
+        <input class="block-button-url" type="url"
+          placeholder="Link URL…"
+          value="${escHtml(block.url || '')}" />
+      </div>
+    </div>`;
+  } else if (block.type === 'divider') {
+    inner = `<div class="block-divider ornament">· · ·</div>`;
+  } else if (block.type === 'spacer') {
+    inner = `<div class="block-spacer"></div>`;
+  }
+
+  wrapper.innerHTML = `<div class="drag-handle" title="Drag to reorder">⠿</div>` + inner + `
+    <div class="block-controls">
+      <button class="block-ctrl-btn" onclick="moveBlock('${block.id}',-1)" title="Move up">↑</button>
+      <button class="block-ctrl-btn" onclick="moveBlock('${block.id}',1)" title="Move down">↓</button>
+      <button class="block-ctrl-btn danger" onclick="deleteBlock('${block.id}')" title="Delete">✕</button>
+    </div>`;
+
+  const area = document.getElementById('blocksArea');
+  if (insertBefore) {
+    area.insertBefore(wrapper, insertBefore);
+  } else {
+    area.appendChild(wrapper);
+  }
+
+  // Enable drag only when handle is held down (avoids fighting contenteditable)
+  const handle = wrapper.querySelector('.drag-handle');
+  handle.addEventListener('mousedown', () => { wrapper.draggable = true; });
+  handle.addEventListener('touchstart', () => { wrapper.draggable = true; }, { passive: true });
+  wrapper.addEventListener('dragstart', onDragStart);
+  wrapper.addEventListener('dragend', onDragEnd);
+
+  // Auto-resize textarea
+  const ta = wrapper.querySelector('textarea');
+  if (ta) {
+    ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; });
+    ta.style.height = ta.scrollHeight + 'px';
+  }
+}
+
+function setImageUrl(id, url) {
+  const b = state.blocks.find(x => x.id === id);
+  if (!b) return;
+  b.url = url;
+  const wrapper = document.querySelector(`[data-id="${id}"]`);
+  const controls = wrapper.querySelector('.block-controls');
+  wrapper.innerHTML = `<div class="block-image-wrap">
+    <img src="${escHtml(url)}" alt="" onerror="this.style.display='none'" />
+    <div class="block-image-caption" contenteditable="true"
+      data-placeholder="Add a caption…">${b.caption || ''}</div>
+  </div>` + controls.outerHTML;
+}
+
+function deleteBlock(id) {
+  state.blocks = state.blocks.filter(x => x.id !== id);
+  document.querySelector(`[data-id="${id}"]`).remove();
+  updateEmpty();
+}
+
+function moveBlock(id, dir) {
+  const idx = state.blocks.findIndex(x => x.id === id);
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= state.blocks.length) return;
+  // Swap in state
+  [state.blocks[idx], state.blocks[newIdx]] = [state.blocks[newIdx], state.blocks[idx]];
+  // Re-render order in DOM
+  const area = document.getElementById('blocksArea');
+  const wrappers = [...area.querySelectorAll('.block-wrapper')];
+  const aEl = wrappers[idx];
+  const bEl = wrappers[newIdx];
+  if (dir === -1) area.insertBefore(aEl, bEl);
+  else area.insertBefore(bEl, aEl);
+}
+
+function updateEmpty() {
+  const empty = document.getElementById('blocksEmpty');
+  if (empty) empty.style.display = state.blocks.length ? 'none' : 'flex';
+}
+
+// ─── Drag & Drop ──────────────────────────────────────────────────────────────
+const drag = { id: null, el: null, indicator: null, insertBeforeEl: null };
+
+function onDragStart(e) {
+  drag.id = this.dataset.id;
+  drag.el = this;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', drag.id);
+  // Defer adding the class so the browser can snapshot the undimmed element
+  requestAnimationFrame(() => this.classList.add('dragging'));
+}
+
+function onDragEnd() {
+  if (drag.el) drag.el.classList.remove('dragging');
+  if (drag.el) drag.el.draggable = false;
+  removeDropIndicator();
+  drag.id = null;
+  drag.el = null;
+  drag.insertBeforeEl = null;
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (!drag.id) return;
+
+  const area = document.getElementById('blocksArea');
+  const wrappers = [...area.querySelectorAll('.block-wrapper')].filter(w => w !== drag.el);
+
+  let insertBeforeEl = null;
+  for (const w of wrappers) {
+    const rect = w.getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) { insertBeforeEl = w; break; }
+  }
+  drag.insertBeforeEl = insertBeforeEl;
+
+  // Reposition indicator
+  removeDropIndicator();
+  drag.indicator = document.createElement('div');
+  drag.indicator.className = 'drop-indicator';
+  if (insertBeforeEl) {
+    area.insertBefore(drag.indicator, insertBeforeEl);
+  } else {
+    area.appendChild(drag.indicator);
+  }
+}
+
+function onDragLeave(e) {
+  const area = document.getElementById('blocksArea');
+  if (!area.contains(e.relatedTarget)) removeDropIndicator();
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  if (!drag.id || !drag.el) return;
+
+  const area = document.getElementById('blocksArea');
+  const { el, insertBeforeEl } = drag;
+  removeDropIndicator();
+
+  if (insertBeforeEl && insertBeforeEl !== el) {
+    area.insertBefore(el, insertBeforeEl);
+  } else if (!insertBeforeEl) {
+    area.appendChild(el);
+  }
+
+  // Sync state.blocks to match new DOM order
+  const newOrder = [...area.querySelectorAll('.block-wrapper')].map(w => w.dataset.id);
+  state.blocks.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+}
+
+function removeDropIndicator() {
+  if (drag.indicator && drag.indicator.parentNode) {
+    drag.indicator.parentNode.removeChild(drag.indicator);
+  }
+  drag.indicator = null;
+}
+
+// ─── Collect data from DOM ─────────────────────────────────────────────────
+function collectData() {
+  const t = TEMPLATES.find(x => x.id === state.template);
+  const blocks = [];
+
+  document.querySelectorAll('#blocksArea .block-wrapper').forEach(wrapper => {
+    const id = wrapper.dataset.id;
+    const block = state.blocks.find(b => b.id === id);
+    if (!block) return;
+
+    if (block.type === 'heading' || block.type === 'subheading') {
+      block.content = wrapper.querySelector('[contenteditable]')?.innerHTML || '';
+    } else if (block.type === 'text') {
+      block.content = wrapper.querySelector('textarea')?.value || '';
+    } else if (block.type === 'image') {
+      const cap = wrapper.querySelector('.block-image-caption');
+      if (cap) block.caption = cap.innerHTML || '';
+    } else if (block.type === 'button') {
+      const lbl = wrapper.querySelector('.block-button-text');
+      const url = wrapper.querySelector('.block-button-url');
+      if (lbl) block.label = lbl.innerHTML || '';
+      if (url) block.url = url.value || '';
+    }
+    blocks.push({ ...block });
+  });
+
+  return {
+    template: state.template,
+    templateData: { bg: t.bg, text: t.text },
+    title: document.getElementById('nlTitle').innerHTML,
+    subtitle: document.getElementById('nlSubtitle').innerHTML,
+    author: document.getElementById('nlAuthor').innerHTML,
+    date: document.getElementById('nlDate').textContent,
+    blocks
+  };
+}
+
+// ─── Publish ──────────────────────────────────────────────────────────────────
+async function publishNewsletter() {
+  const data = collectData();
+  const btn = document.getElementById('publishBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Publishing…';
+
+  try {
+    let res;
+    if (state.publishedId) {
+      res = await fetch(`/api/newsletters/${state.publishedId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data })
+      });
+    } else {
+      res = await fetch('/api/newsletters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data })
+      });
+    }
+    const json = await res.json();
+    state.publishedId = json.id;
+
+    const fullUrl = window.location.origin + json.url;
+    document.getElementById('shareLinkText').textContent = fullUrl;
+    document.getElementById('shareModal').classList.add('open');
+    btn.innerHTML = '✓ Update link';
+  } catch(e) {
+    showToast('Something went wrong. Is the server running?');
+  } finally {
+    btn.disabled = false;
+    if (!state.publishedId) btn.innerHTML = 'Share →';
+  }
+}
+
+function openPreview() {
+  const data = collectData();
+  const card = document.getElementById('previewCard');
+  const t = TEMPLATES.find(x => x.id === state.template);
+  const bg = t ? t.bg : '#c8745a';
+  const textColor = t ? t.text : '#fff';
+  const authorText = (data.author || '').replace(/<[^>]*>/g,'').trim();
+  const initial = authorText[0]?.toUpperCase() || '?';
+  const borderColor = textColor === '#fff' ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.15)';
+
+  card.innerHTML = `
+    <div style="padding:36px 48px 28px;background:${bg};color:${textColor}">
+      <div style="font-family:'Lora',serif;font-size:28px;font-weight:600;line-height:1.25">${data.title || '<span style="opacity:0.4">Your newsletter title…</span>'}</div>
+      ${data.subtitle ? `<div style="font-size:15px;margin-top:8px;opacity:0.75">${data.subtitle}</div>` : ''}
+      <div style="display:flex;align-items:center;gap:14px;margin-top:18px;padding-top:14px;border-top:1px solid ${borderColor};font-size:13px;opacity:0.8">
+        <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">${initial}</div>
+        <div>${authorText || '<span style="opacity:0.6">Your name</span>'}</div>
+        <div style="margin-left:auto;font-size:12px;opacity:0.8">${data.date || ''}</div>
+      </div>
+    </div>
+    <div id="previewBody" style="padding:32px 48px 48px;font-family:'Inter',sans-serif;"></div>`;
+
+  const bodyEl = document.getElementById('previewBody');
+  data.blocks.forEach(block => {
+    const el = renderViewBlock(block, t);
+    if (el) bodyEl.appendChild(el);
+  });
+  if (!data.blocks.length) {
+    bodyEl.innerHTML = `<div style="color:#9c8e7e;font-size:14px;text-align:center;padding:40px 0">No content blocks yet — add some from the sidebar.</div>`;
+  }
+
+  document.getElementById('previewModal').classList.add('open');
+}
+
+function closePreview() {
+  document.getElementById('previewModal').classList.remove('open');
+}
+
+function renderViewBlock(block, templateData) {
+  const div = document.createElement('div');
+  div.style.marginBottom = '20px';
+  if (block.type === 'heading') {
+    div.innerHTML = `<div style="font-family:'Lora',serif;font-size:24px;font-weight:600;color:#2c2418;line-height:1.3">${block.content || ''}</div>`;
+  } else if (block.type === 'subheading') {
+    div.innerHTML = `<div style="font-family:'Lora',serif;font-size:18px;font-style:italic;font-weight:600;color:#6b5e4e;line-height:1.3">${block.content || ''}</div>`;
+  } else if (block.type === 'text') {
+    div.innerHTML = `<div style="font-size:16px;line-height:1.8;color:#2c2418;white-space:pre-wrap">${escHtml(block.content || '')}</div>`;
+  } else if (block.type === 'divider') {
+    div.innerHTML = `<div style="text-align:center;color:#9c8e7e;font-size:18px;letter-spacing:8px;padding:8px 0">· · ·</div>`;
+  } else if (block.type === 'image' && block.url) {
+    div.innerHTML = `<div><img src="${escHtml(block.url)}" alt="" style="width:100%;border-radius:10px;display:block" />${block.caption ? `<div style="font-size:13px;color:#9c8e7e;text-align:center;margin-top:8px;font-style:italic">${block.caption}</div>` : ''}</div>`;
+  } else if (block.type === 'button') {
+    const btnBg = templateData?.bg || '#c0623a';
+    const btnColor = templateData?.text || '#fff';
+    const label = block.label || 'Click here';
+    const url = block.url || '#';
+    div.innerHTML = `<div style="padding:6px 0"><a href="${escHtml(url)}" style="display:inline-block;padding:12px 28px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;background:${escHtml(btnBg)};color:${escHtml(btnColor)}" target="_blank" rel="noopener">${label}</a></div>`;
+  } else if (block.type === 'spacer') {
+    div.style.height = '20px';
+  } else {
+    return null;
+  }
+  return div;
+}
+
+function closeModal() {
+  document.getElementById('shareModal').classList.remove('open');
+}
+
+async function copyLink() {
+  const url = document.getElementById('shareLinkText').textContent;
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast('Link copied! 📋');
+  } catch {
+    showToast('Select and copy the link manually.');
+  }
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+function init() {
+  // Set today's date
+  document.getElementById('nlDate').textContent = new Date().toLocaleDateString('en-US', {
+    month: 'long', day: 'numeric', year: 'numeric'
+  });
+
+  // Update avatar when author name changes
+  document.getElementById('nlAuthor').addEventListener('input', function() {
+    const first = this.textContent.trim()[0] || '?';
+    document.getElementById('nlAvatar').textContent = first.toUpperCase();
+  });
+
+  // Render templates
+  renderTemplateGrid();
+
+  // Apply default template
+  applyTemplate('weekly');
+
+  // Starter blocks
+  addBlock('text', { content: 'Hello! Welcome to your newsletter. Replace this with your own words — share a story, a recommendation, a life update. Your readers will love hearing from you.' });
+  addBlock('divider');
+
+  // Wire drag-and-drop on the blocks area
+  const blocksArea = document.getElementById('blocksArea');
+  blocksArea.addEventListener('dragover', onDragOver);
+  blocksArea.addEventListener('drop', onDrop);
+  blocksArea.addEventListener('dragleave', onDragLeave);
+
+  // Close modal on overlay click
+  document.getElementById('shareModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+}
+
+init();
+</script>
+</body>
+</html>
