@@ -343,10 +343,9 @@
       background: var(--warm-border);
     }
     .block-divider.ornament {
-      text-align: center;
-      color: var(--text-light);
-      font-size: 18px;
-      letter-spacing: 8px;
+      border: none;
+      border-top: 1px solid var(--warm-border);
+      margin: 8px 0;
     }
     .block-image-wrap {
       width: 100%;
@@ -813,7 +812,7 @@ function renderBlock(block, insertBefore = null) {
       </div>
     </div>`;
   } else if (block.type === 'divider') {
-    inner = `<div class="block-divider ornament">· · ·</div>`;
+    inner = `<div class="block-divider ornament"></div>`;
   } else if (block.type === 'spacer') {
     inner = `<div class="block-spacer"></div>`;
   }
@@ -1086,7 +1085,7 @@ function renderViewBlock(block, templateData) {
   } else if (block.type === 'text') {
     div.innerHTML = `<div style="font-size:16px;line-height:1.8;color:#2c2418;white-space:pre-wrap">${escHtml(block.content || '')}</div>`;
   } else if (block.type === 'divider') {
-    div.innerHTML = `<div style="text-align:center;color:#9c8e7e;font-size:18px;letter-spacing:8px;padding:8px 0">· · ·</div>`;
+    div.innerHTML = `<div style="border:none;border-top:1px solid #e0d8cc;margin:8px 0"></div>`;
   } else if (block.type === 'image' && block.url) {
     div.innerHTML = `<div><img src="${escHtml(block.url)}" alt="" style="width:100%;border-radius:10px;display:block" />${block.caption ? `<div style="font-size:13px;color:#9c8e7e;text-align:center;margin-top:8px;font-style:italic">${block.caption}</div>` : ''}</div>`;
   } else if (block.type === 'button') {

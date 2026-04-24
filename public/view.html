@@ -134,11 +134,9 @@
       white-space: pre-wrap;
     }
     .view-divider {
-      text-align: center;
-      color: var(--text-light);
-      font-size: 18px;
-      letter-spacing: 8px;
-      padding: 8px 0;
+      border: none;
+      border-top: 1px solid var(--warm-border);
+      margin: 8px 0;
     }
     .view-image img {
       width: 100%;
@@ -240,7 +238,7 @@ function renderBlock(block, templateData) {
   } else if (block.type === 'text') {
     div.innerHTML = `<div class="view-text">${escHtml(block.content || '')}</div>`;
   } else if (block.type === 'divider') {
-    div.innerHTML = `<div class="view-divider">· · ·</div>`;
+    div.innerHTML = `<div class="view-divider"></div>`;
   } else if (block.type === 'image' && block.url) {
     div.innerHTML = `<div class="view-image">
       <img src="${escHtml(block.url)}" alt="" />
